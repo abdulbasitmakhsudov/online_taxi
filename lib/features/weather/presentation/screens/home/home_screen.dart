@@ -177,60 +177,56 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
-
+      isScrollControlled: true,
       // To'liq ekran parametrlarini nazorat qilish
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        minChildSize: 0,
-        maxChildSize: 1,
-        builder: (context, scrollController) => SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                height: 56,
-                padding: EdgeInsets.all(16),
-                margin: EdgeInsets.only(left: 16, right: 16, top: 42),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: AppColors.white,
-                ),
-                child: TextField(
-                  controller: queryController,
-                  textAlign: TextAlign.start,
-                  textAlignVertical: TextAlignVertical.center,
-                  onSubmitted: _suggest,
-                  style: pmedium.copyWith(fontSize: 16),
-                  decoration: InputDecoration(
-                    hintText: 'Search for a location',
-                    hintStyle: pmedium.copyWith(
-                      fontSize: 16,
-                      color: AppColors.steelGrey,
-                    ),
-                    border: InputBorder.none,
+      builder: (context) => Container(
+        height: context.screenSize.height - 108,
+        child: Column(
+          children: [
+            Container(
+              height: 56,
+              padding: EdgeInsets.all(16),
+              margin: EdgeInsets.only(left: 16, right: 16, top: 42),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: AppColors.white,
+              ),
+              child: TextField(
+                controller: queryController,
+                textAlign: TextAlign.start,
+                textAlignVertical: TextAlignVertical.center,
+                onSubmitted: _suggest,
+                style: pmedium.copyWith(fontSize: 16),
+                decoration: InputDecoration(
+                  hintText: 'Search for a location',
+                  hintStyle: pmedium.copyWith(
+                    fontSize: 16,
+                    color: AppColors.steelGrey,
                   ),
+                  border: InputBorder.none,
                 ),
               ),
-              getList(onTap: (item) {
-                suggests.clear();
-                queryController.clear();
+            ),
+            getList(onTap: (item) {
+              suggests.clear();
+              queryController.clear();
 
-                setState(() {
-                  if (PlaceType.start == placeType) {
-                    _currentLocation = item.center;
-                  } else {
-                    _destinationPoint = item.center;
-                  }
-                });
-                if (_destinationPoint != null && _currentLocation != null) {
-                  _requestRoutes();
+              setState(() {
+                if (PlaceType.start == placeType) {
+                  _currentLocation = item.center;
+                } else {
+                  _destinationPoint = item.center;
                 }
-                popDialog(context);
-              }) // scrollController uzatilmoqda
-            ],
-          ),
+              });
+              if (_destinationPoint != null && _currentLocation != null) {
+                _requestRoutes();
+              }
+              popDialog(context);
+            }) // scrollController uzatilmoqda
+          ],
         ),
       ),
     );
@@ -292,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget getList({required Function(SuggestItem item) onTap}) {
     return ListView.separated(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: AlwaysScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -328,8 +324,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void addDriveHistory() async {
     final from = await getLocationDetails(_currentLocation!);
     final to = await getLocationDetails(_destinationPoint!);
-    print(from);
-    print(to);
 
     await isarHelper.addHistory(
         HistoryModel(from: from, to: to, time: DateTime.now()).toEntity());
