@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:online_taxi/config/themes/color_scheme.dart';
+import 'package:online_taxi/core/constants/app_colors.dart';
 import 'package:online_taxi/core/widgets/primary_button.dart';
 
 import '../constants/app_fonts.dart';
@@ -67,6 +68,7 @@ class UnderSaveButton extends StatelessWidget {
                 ),
                 24.verticalSpace,
                 PrimaryButton(
+                  color: AppColors.primary,
                   onTap: onPressed,
                   text: title.tr,
                 ),

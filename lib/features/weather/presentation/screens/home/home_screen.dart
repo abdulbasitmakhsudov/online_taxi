@@ -4,9 +4,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:online_taxi/config/routes/app_routes.dart';
+import 'package:online_taxi/core/app_preferences/isar_helper.dart';
 import 'package:online_taxi/core/extensions/common_extensions.dart';
 import 'package:online_taxi/core/extensions/navigation_extension.dart';
 import 'package:online_taxi/core/widgets/primary_under_widget.dart';
+import 'package:online_taxi/features/weather/domain/entity/history_entity.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 import '../../../../../core/constants/app_colors.dart';
@@ -174,14 +177,14 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
-      isScrollControlled: true,
+
       // To'liq ekran parametrlarini nazorat qilish
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.9,
-        minChildSize: 0.25,
+        minChildSize: 0,
         maxChildSize: 1,
         builder: (context, scrollController) => SingleChildScrollView(
           child: Column(
@@ -320,6 +323,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  IsarHelper isarHelper = IsarHelper();
+
+  void addDriveHistory() async {
+    final from = await getLocationDetails(_currentLocation!);
+    final to = await getLocationDetails(_destinationPoint!);
+    print(from);
+    print(to);
+
+    await isarHelper.addHistory(
+        HistoryModel(from: from, to: to, time: DateTime.now()).toEntity());
+    _currentLocation = null;
+    _destinationPoint = null;
+    _mapObjects.clear();
+    isDriving = false;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -361,18 +381,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text(_travelTime!),
               ),
             ),
-          if (_destinationPoint != null)
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: FloatingActionButton(
-                onPressed: _endTrip,
-                child: const Text('End'),
-              ),
-            ),
+          Positioned(
+            top: 42,
+            right: 16,
+            child: primaryFloatingActionButton(
+                context: context,
+                onPressed: () {
+                  pushScreen(context, AppRoutes.historyScreen);
+                },
+                child: Icon(Icons.history)),
+          ),
           isDriving
               ? UnderSaveButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    addDriveHistory();
+                  },
                   title: "Finish Drive",
                 )
               : PrimaryUnderWidget(
