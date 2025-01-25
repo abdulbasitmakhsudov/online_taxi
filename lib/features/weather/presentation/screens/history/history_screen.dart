@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -91,48 +92,45 @@ class _HistoryScreenState extends State<HistoryScreen> {
         actions: [
           histories.isNotEmpty
               ? IconButton(
-            onPressed: _showClearConfirmationDialog,
-            icon: const Icon(Icons.delete_outline),
-          )
+                  onPressed: _showClearConfirmationDialog,
+                  icon: const Icon(CupertinoIcons.delete),
+                )
               : 0.horizontalSpace,
         ],
       ),
       body: histories.isEmpty
           ? Center(
-        child: Lottie.asset(
-          'assets/lottie/empty.json',
-          width: 200.w,
-          height: 200.h,
-        ),
-      )
+              child: Lottie.asset(
+                'assets/lottie/empty.json',
+                width: 200.w,
+                height: 200.h,
+              ),
+            )
           : GroupedListView<HistoryModel, DateTime>(
-        elements: histories,
-        groupBy: (history) =>
-            DateTime(
-              history.time.year,
-              history.time.month,
-              history.time.day,
-            ),
-        groupSeparatorBuilder: (DateTime date) =>
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-              child: Center(
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                  decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(8)
+              elements: histories,
+              groupBy: (history) => DateTime(
+                history.time.year,
+                history.time.month,
+                history.time.day,
+              ),
+              groupSeparatorBuilder: (DateTime date) => Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                    decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(8)),
+                    child: Text('${date.year}-${date.month}-${date.day}',
+                        style: pmedium),
                   ),
-                  child: Text('${date.year}-${date.month}-${date.day}',
-                      style: pmedium),
                 ),
               ),
+              itemBuilder: (context, history) =>
+                  HistoryListItem(history: history),
+              itemComparator: (a, b) => b.time.compareTo(a.time),
+              order: GroupedListOrder.DESC,
             ),
-        itemBuilder: (context, history) =>
-            HistoryListItem(history: history),
-        itemComparator: (a, b) => b.time.compareTo(a.time),
-        order: GroupedListOrder.DESC,
-      ),
     );
   }
 }
@@ -144,15 +142,63 @@ class HistoryListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(
-        '${history.from} → ${history.to}',
-        style: pmedium,
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      subtitle: Text(
-        '${history.time.hour}:${history.time.minute}',
-        style: pregular,
-      ),
+      child: ListTile(
+        title: Row(
+          children: [
+            const Icon(
+              CupertinoIcons.location,
+              size: 24,
+              color: AppColors.steelGrey,
+            ),
+            8.horizontalSpace,
+            Expanded(
+              child: Text(
+                history.from,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: pmedium,
+              ),
+            ),
+          ],
+        ),
+        subtitle: Row(
+          children: [
+            const Icon(
+              CupertinoIcons.flag,
+              size: 24,
+              color: AppColors.steelGrey,
+            ),
+            8.horizontalSpace,
+            Expanded(
+              child: Text(
+                history.to,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: pregular,
+              ),
+            ),
+          ],
+        ),
+        trailing: Text(
+          '${history.time.hour.toString().padLeft(2, '0')}:${history.time.minute.toString().padLeft(2, '0')}',
+          style: pregular.copyWith(color: AppColors.steelGrey),
+        ),
+      )
+
     );
   }
 }

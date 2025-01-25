@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:lottie/lottie.dart';
 import 'package:online_taxi/config/routes/app_routes.dart';
 import 'package:online_taxi/core/app_preferences/isar_helper.dart';
 import 'package:online_taxi/core/extensions/common_extensions.dart';
@@ -45,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content:
-                Text('Location services are disabled. Please enable them.')),
+            Text('Location services are disabled. Please enable them.')),
       );
       return;
     }
@@ -77,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
       final userPoint =
-          Point(latitude: position.latitude, longitude: position.longitude);
+      Point(latitude: position.latitude, longitude: position.longitude);
 
       setState(() {
         _currentLocation = userPoint;
@@ -102,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _updateMarkerAndInfo(Point point) async {
     setState(() {
       _mapObjects.removeWhere(
-          (mapObject) => mapObject.mapId.value == 'selected_point');
+              (mapObject) => mapObject.mapId.value == 'selected_point');
       _mapObjects.add(
         PlacemarkMapObject(
           mapId: const MapObjectId('selected_point'),
@@ -128,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _elapsedSeconds++;
         _travelTime =
-            "Travel time: ${_elapsedSeconds ~/ 60} min ${_elapsedSeconds % 60} sec";
+        "Travel time: ${_elapsedSeconds ~/ 60} min ${_elapsedSeconds % 60} sec";
       });
     });
   }
@@ -175,60 +176,83 @@ class _HomeScreenState extends State<HomeScreen> {
   void openBottomSheet(PlaceType placeType) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme
+          .of(context)
+          .scaffoldBackgroundColor,
       elevation: 0,
       isScrollControlled: true,
-      // To'liq ekran parametrlarini nazorat qilish
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
-        height: context.screenSize.height - 108,
-        child: Column(
-          children: [
-            Container(
-              height: 56,
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.only(left: 16, right: 16, top: 42),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: AppColors.white,
-              ),
-              child: TextField(
-                controller: queryController,
-                textAlign: TextAlign.start,
-                textAlignVertical: TextAlignVertical.center,
-                onSubmitted: _suggest,
-                style: pmedium.copyWith(fontSize: 16),
-                decoration: InputDecoration(
-                  hintText: 'Search for a location',
-                  hintStyle: pmedium.copyWith(
-                    fontSize: 16,
-                    color: AppColors.steelGrey,
-                  ),
-                  border: InputBorder.none,
+      builder: (context) =>
+          Container(
+            height: context.screenSize.height - 108,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // TextField uchun konteyner
+                42.verticalSpace,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(placeType == PlaceType.start ? "Where from?" : "Where to?",
+                    style: pmedium,),
                 ),
-              ),
-            ),
-            getList(onTap: (item) {
-              suggests.clear();
-              queryController.clear();
+                Container(
+                  height: 56,
+                  padding: EdgeInsets.all(16),
+                  margin: EdgeInsets.only(left: 16, right: 16, top: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: AppColors.white,
+                  ),
+                  child: TextField(
+                    controller: queryController,
+                    textAlign: TextAlign.start,
+                    textAlignVertical: TextAlignVertical.center,
+                    onSubmitted: _suggest,
+                    style: pmedium.copyWith(fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: 'Search for a location',
+                      hintStyle: pmedium.copyWith(
+                        fontSize: 16,
+                        color: AppColors.steelGrey,
+                      ),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                // Suggest elementlari uchun scrollable qism
+                Expanded(
+                  child: suggests.isEmpty
+                      ? Center(
+                    child: Lottie.asset(
+                        'assets/lottie/empty.json',
+                        width: 200.w,
+                        height: 200.h,
+                        repeat: false
+                    ),
+                  )
+                      : getList(onTap: (item) {
+                    suggests.clear();
+                    queryController.clear();
 
-              setState(() {
-                if (PlaceType.start == placeType) {
-                  _currentLocation = item.center;
-                } else {
-                  _destinationPoint = item.center;
-                }
-              });
-              if (_destinationPoint != null && _currentLocation != null) {
-                _requestRoutes();
-              }
-              popDialog(context);
-            }) // scrollController uzatilmoqda
-          ],
-        ),
-      ),
+                    setState(() {
+                      if (PlaceType.start == placeType) {
+                        _currentLocation = item.center;
+                      } else {
+                        _destinationPoint = item.center;
+                      }
+                    });
+                    if (_destinationPoint != null &&
+                        _currentLocation != null) {
+                      _requestRoutes();
+                    }
+                    popDialog(context);
+                  }),
+                ),
+              ],
+            ),
+          ),
     );
   }
 
@@ -278,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mapId: MapObjectId('route_${i}_polyline'),
           polyline: Polyline(points: route.geometry),
           strokeColor:
-              Colors.primaries[Random().nextInt(Colors.primaries.length)],
+          Colors.primaries[Random().nextInt(Colors.primaries.length)],
           strokeWidth: 3,
         ));
       });
@@ -387,27 +411,27 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           isDriving
               ? UnderSaveButton(
-                  onPressed: () async {
-                    addDriveHistory();
-                  },
-                  title: "Finish Drive",
-                )
+            onPressed: () async {
+              addDriveHistory();
+            },
+            title: "Finish Drive",
+          )
               : PrimaryUnderWidget(
-                  onFinishTap: () {
-                    isDriving = true;
-                    setState(() {});
-                  },
-                  onFinishPlaceTap: () {
-                    openBottomSheet(PlaceType.end);
-                  },
-                  isEnable:
-                      _currentLocation != null && _destinationPoint != null,
-                  onStartPlaceTap: () {
-                    openBottomSheet(PlaceType.start);
-                  },
-                  startPoint: _currentLocation,
-                  endPoint: _destinationPoint,
-                )
+            onFinishTap: () {
+              isDriving = true;
+              setState(() {});
+            },
+            onFinishPlaceTap: () {
+              openBottomSheet(PlaceType.end);
+            },
+            isEnable:
+            _currentLocation != null && _destinationPoint != null,
+            onStartPlaceTap: () {
+              openBottomSheet(PlaceType.start);
+            },
+            startPoint: _currentLocation,
+            endPoint: _destinationPoint,
+          )
         ],
       ),
       floatingActionButton: Column(
@@ -428,10 +452,10 @@ class _HomeScreenState extends State<HomeScreen> {
           isDriving
               ? SizedBox.shrink()
               : primaryFloatingActionButton(
-                  onPressed: _checkPermissionAndLocateUser,
-                  context: context,
-                  child: const Icon(Icons.my_location, color: Colors.black),
-                ),
+            onPressed: _checkPermissionAndLocateUser,
+            context: context,
+            child: const Icon(Icons.my_location, color: Colors.black),
+          ),
           isDriving ? 156.verticalSpace : 234.verticalSpace
         ],
       ),
